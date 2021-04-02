@@ -10,6 +10,9 @@ import java.util.List;
  * @Date: 2021/4/2 10:34 上午
  */
 public interface DouyuService {
-    public List<DouyuDto> getAll();
-    public String getPlayUrl(String rid);
+    List<DouyuDto> getAll();
+
+    String getPlayUrl(String rid);
+
+    List<DouyuDto> getAllByPage(Integer page, Integer size);
 }

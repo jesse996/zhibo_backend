@@ -31,5 +31,8 @@ class ZhiboApplicationTests {
         System.out.println(douyuService.getAll());
     }
 
-
+    @Test
+    void douyuGetAllByPage(){
+        System.out.println(douyuService.getAllByPage(1,10));
+    }
 }

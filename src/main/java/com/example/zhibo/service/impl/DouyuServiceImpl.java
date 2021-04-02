@@ -79,4 +79,24 @@ public class DouyuServiceImpl implements DouyuService {
         }
         return res;
     }
+
+    @Override
+    public List<DouyuDto> getAllByPage(Integer page, Integer size) {
+        long start = (page - 1) * (long) size;
+        long end = start + size;
+        Set<String> set = stringRedisTemplate.opsForZSet().reverseRange(ROOM_LIST_SET_KEY, start, end);
+        if (set == null) return null;
+        List<DouyuDto> res = new ArrayList<>();
+        for (String rid : set) {
+            Object o = stringRedisTemplate.opsForHash().get(ROOM_LIST_HASH_KEY, rid);
+            DouyuDto douyuDto = new DouyuDto();
+            JSONObject jsonObject = JSONUtil.parseObj(o);
+            douyuDto.setRid(rid);
+            douyuDto.setTitle(jsonObject.getStr("title"));
+            douyuDto.setName(jsonObject.getStr("username"));
+            douyuDto.setCoverImg(jsonObject.getStr("coverImg"));
+            res.add(douyuDto);
+        }
+        return res;
+    }
 }
