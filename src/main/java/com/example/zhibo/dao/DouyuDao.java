@@ -20,5 +20,5 @@ public class DouyuDao implements Serializable{
     String title;
     String imgUrl;
     String username;
-    String href;
+    String rid;
 }

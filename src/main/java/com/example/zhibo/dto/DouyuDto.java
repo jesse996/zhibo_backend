@@ -20,8 +20,6 @@ public class DouyuDto implements Serializable {
 
     private String title;
 
-//    private String avatar;
-
     //room id
     private String rid;
 

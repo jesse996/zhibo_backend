@@ -24,54 +24,57 @@ import java.util.Set;
 @Service
 public class DouyuServiceImpl implements DouyuService {
     @Resource
-    RedisTemplate<String, DouyuDao> redisTemplate;
-
-    @Resource
     StringRedisTemplate stringRedisTemplate;
 
-    private static final String ROOM_LIST_KEY = "douyu::rooms";
+    private static final String ROOM_LIST_SET_KEY = "douyu::rooms::set";
+    private static final String ROOM_LIST_HASH_KEY = "douyu::rooms::hash";
 
     @Override
     public List<DouyuDto> getAll() {
         ZSetOperations<String, String> ops = stringRedisTemplate.opsForZSet();
-        var scan = ops.scan(ROOM_LIST_KEY, ScanOptions.scanOptions().build());
+        var scan = ops.scan(ROOM_LIST_SET_KEY, ScanOptions.scanOptions().count(200).build());
         List<DouyuDto> res = new ArrayList<>();
 
         while (scan.hasNext()) {
             ZSetOperations.TypedTuple<String> next = scan.next();
-            DouyuDto douyu = new DouyuDto();
-            DouyuDao dao = JSONUtil.parseObj(next.getValue()).toBean(DouyuDao.class);
-            douyu.setCoverImg(dao.getImgUrl());
-            douyu.setName(dao.getUsername());
-            //href去掉第一个'/'字符
-            douyu.setRid(dao.getHref().substring(1));
-            douyu.setTitle(dao.getTitle());
-            douyu.setScore(next.getScore());
-            res.add(douyu);
+            DouyuDto douyuDto = new DouyuDto();
+            String rid = next.getValue();
+            assert rid != null;
+            Object o = stringRedisTemplate.opsForHash().get(ROOM_LIST_HASH_KEY, rid);
+            JSONObject jsonObject = JSONUtil.parseObj(o);
+            douyuDto.setScore(next.getScore());
+            douyuDto.setRid(rid);
+            douyuDto.setTitle(jsonObject.getStr("title"));
+            douyuDto.setName(jsonObject.getStr("username"));
+            douyuDto.setCoverImg(jsonObject.getStr("coverImg"));
+            res.add(douyuDto);
         }
         return res;
     }
 
     @Override
     public String getPlayUrl(String rid) {
-        String res=null;
+        String res = null;
         try {
-            Process proc = Runtime.getRuntime().exec("node /Users/jesse/Documents/puppeteer_zhibo/src/douyu.js "+rid);
+            Process proc = Runtime.getRuntime().exec("node /Users/jesse/Documents/puppeteer_zhibo/src/douyu.js " + rid);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-            StringBuffer stringBuffer = new StringBuffer();
+            StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = in.readLine()) != null) {
-                stringBuffer.append(line);
+                stringBuilder.append(line);
             }
-            JSONObject object = JSONUtil.parseObj(stringBuffer.toString());
+            JSONObject object = JSONUtil.parseObj(stringBuilder.toString());
 
             if (object.getInt("err") == 0) {
                 res = object.getStr("data");
+            } else {
+                //房间未开播或不存在，从redis中删除
+                stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY, rid);
             }
             in.close();
             proc.waitFor();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return res;
