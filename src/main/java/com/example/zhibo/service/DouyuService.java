@@ -1,6 +1,5 @@
 package com.example.zhibo.service;
 
-import com.example.zhibo.common.CommonResult;
 import com.example.zhibo.dto.DouyuDto;
 
 import java.util.List;
@@ -15,4 +14,6 @@ public interface DouyuService {
     String getPlayUrl(String rid);
 
     List<DouyuDto> getAllByPage(Integer page, Integer size);
+
+    Long getCount();
 }

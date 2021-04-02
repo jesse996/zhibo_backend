@@ -2,12 +2,9 @@ package com.example.zhibo.service.impl;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.example.zhibo.dao.DouyuDao;
 import com.example.zhibo.dto.DouyuDto;
 import com.example.zhibo.service.DouyuService;
-import lombok.SneakyThrows;
 import org.springframework.data.redis.core.*;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -83,7 +80,7 @@ public class DouyuServiceImpl implements DouyuService {
     @Override
     public List<DouyuDto> getAllByPage(Integer page, Integer size) {
         long start = (page - 1) * (long) size;
-        long end = start + size;
+        long end = start + size - 1;
         Set<String> set = stringRedisTemplate.opsForZSet().reverseRange(ROOM_LIST_SET_KEY, start, end);
         if (set == null) return null;
         List<DouyuDto> res = new ArrayList<>();
@@ -98,5 +95,10 @@ public class DouyuServiceImpl implements DouyuService {
             res.add(douyuDto);
         }
         return res;
+    }
+
+    @Override
+    public Long getCount() {
+        return stringRedisTemplate.opsForZSet().zCard(ROOM_LIST_SET_KEY);
     }
 }
