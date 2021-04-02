@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface DouyuService {
     public List<DouyuDto> getAll();
-    public String getPayUrl();
+    public String getPlayUrl(String rid);
 }

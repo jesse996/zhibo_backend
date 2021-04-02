@@ -1,5 +1,6 @@
 package com.example.zhibo;
 
+import com.example.zhibo.dto.DouyuDto;
 import com.example.zhibo.service.DouyuService;
 import com.example.zhibo.service.HuyaService;
 import com.example.zhibo.service.impl.HuyaServiceImpl;
@@ -29,4 +30,6 @@ class ZhiboApplicationTests {
     void douyuGetAll(){
         System.out.println(douyuService.getAll());
     }
+
+
 }

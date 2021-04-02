@@ -1,14 +1,18 @@
 package com.example.zhibo.service.impl;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.zhibo.dao.DouyuDao;
 import com.example.zhibo.dto.DouyuDto;
 import com.example.zhibo.service.DouyuService;
+import lombok.SneakyThrows;
 import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +53,27 @@ public class DouyuServiceImpl implements DouyuService {
     }
 
     @Override
-    public String getPayUrl() {
-        return null;
+    public String getPlayUrl(String rid) {
+        String res=null;
+        try {
+            Process proc = Runtime.getRuntime().exec("node /Users/jesse/Documents/puppeteer_zhibo/src/douyu.js "+rid);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            StringBuffer stringBuffer = new StringBuffer();
+            String line;
+            while ((line = in.readLine()) != null) {
+                stringBuffer.append(line);
+            }
+            JSONObject object = JSONUtil.parseObj(stringBuffer.toString());
+
+            if (object.getInt("err") == 0) {
+                res = object.getStr("data");
+            }
+            in.close();
+            proc.waitFor();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return res;
     }
 }
