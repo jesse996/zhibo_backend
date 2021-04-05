@@ -116,7 +116,5 @@ public class HuyaServiceImpl implements HuyaService {
             res.add(huya);
         }
         return res;
-
-//        return opsForSet.randomMembers(KEY, 20);
     }
 }

@@ -24,11 +24,10 @@ public class HuyaController {
     HuyaService huyaService;
 
     @GetMapping("")
-//    @Cacheable()
-//    public CommonResult getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int size) {
-    public CommonResult getAll() {
-//        var data = new PageInfo<>(huyaService.getAll(page,size));
-        var data = new PageInfo<>(huyaService.getAllByRedis());
+    @Cacheable(key = "#page+#size")
+    public CommonResult getAll(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "20") int size) {
+        var data = new PageInfo<>(huyaService.getAll(page,size));
+//        var data = new PageInfo<>(huyaService.getAllByRedis());
         return CommonResult.success(data);
     }
 

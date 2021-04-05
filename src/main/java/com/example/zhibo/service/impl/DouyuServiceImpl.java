@@ -4,6 +4,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.zhibo.dto.DouyuDto;
 import com.example.zhibo.service.DouyuService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
@@ -19,12 +21,16 @@ import java.util.Set;
  * @Date: 2021/4/2 10:36 上午
  */
 @Service
+//@PropertySource("classpath:application.yaml")
 public class DouyuServiceImpl implements DouyuService {
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
-    private static final String ROOM_LIST_SET_KEY = "douyu::rooms::set";
-    private static final String ROOM_LIST_HASH_KEY = "douyu::rooms::hash";
+    @Value("${spring.redis.key.douyu.room-set}")
+    private String ROOM_LIST_SET_KEY;
+
+    @Value("${spring.redis.key.douyu.room-hash}")
+    private String ROOM_LIST_HASH_KEY;
 
     @Override
     public List<DouyuDto> getAll() {
@@ -53,7 +59,7 @@ public class DouyuServiceImpl implements DouyuService {
     public String getPlayUrl(String rid) {
         String res = null;
         try {
-            Process proc = Runtime.getRuntime().exec("node /Users/jesse/Documents/puppeteer_zhibo/src/douyu.js " + rid);
+            Process proc = Runtime.getRuntime().exec("node C:\\Users\\Jesse\\桌面\\直播项目\\zhibo_spider\\src\\douyu.js " + rid);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -65,10 +71,11 @@ public class DouyuServiceImpl implements DouyuService {
 
             if (object.getInt("err") == 0) {
                 res = object.getStr("data");
-            } else {
-                //房间未开播或不存在，从redis中删除
-                stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY, rid);
             }
+//            else {
+            //房间未开播或不存在，从redis中删除
+//                stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY, rid);
+//            }
             in.close();
             proc.waitFor();
         } catch (Exception e) {

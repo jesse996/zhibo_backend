@@ -1,0 +1,40 @@
+version: '3'
+services:
+
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+      - db
+    networks:
+      - zhibo-network
+
+  redis:
+    image: "redis:alpine"
+    ports:
+    - "6379:6379"
+    networks:
+      - zhibo-network
+
+  db:
+    image: "mysql:latest"
+    ports:
+    - "3306:3306"
+    expose:
+      - 3306
+    networks:
+      - zhibo-network
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+
+  nest:
+    build:
+      context: ../zhibo-url
+    networks:
+      - zhibo-network
+
+#在最顶层定义时会自动创建这个网络
+networks:
+  zhibo-network:
