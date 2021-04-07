@@ -10,6 +10,7 @@ services:
       - db
     networks:
       - zhibo-network
+    restart: always
 
   redis:
     image: "redis:alpine"
@@ -28,10 +29,11 @@ services:
       - zhibo-network
     environment:
       MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: zhibo
 
   nest:
     build:
-      context: ../zhibo-url
+      context: ../zhibo_spider/
     networks:
       - zhibo-network
 
