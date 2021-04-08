@@ -1,9 +1,6 @@
 package com.example.zhibo.service.impl;
 
-import com.example.zhibo.model.Huya;
 import com.example.zhibo.service.RedisService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;

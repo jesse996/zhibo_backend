@@ -1,16 +1,11 @@
 package com.example.zhibo.controller;
 
 import com.example.zhibo.common.CommonResult;
-import com.example.zhibo.dto.DouyuDto;
+import com.example.zhibo.common.MyPageInfo;
 import com.example.zhibo.service.DouyuService;
-import com.github.pagehelper.PageInfo;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.websocket.server.PathParam;
-import java.util.List;
 
 /**
  * @Author: jesse
@@ -33,7 +28,7 @@ public class DouyuController {
                                @RequestParam(value = "size", defaultValue = "20") Integer size) {
         var data = douyuService.getAllByPage(page, size);
         if (data == null) return CommonResult.failed();
-        var pageInfo = new PageInfo<>(data);
+        var pageInfo = new MyPageInfo<>(data);
         var total = douyuService.getCount();
         pageInfo.setTotal(total);
         pageInfo.setPages((int) (total / size) + 1);
