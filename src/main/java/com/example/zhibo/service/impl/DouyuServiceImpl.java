@@ -4,12 +4,16 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.zhibo.dto.DouyuDto;
 import com.example.zhibo.service.DouyuService;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -31,6 +35,8 @@ public class DouyuServiceImpl implements DouyuService {
 
     @Value("${spring.redis.key.douyu.room-hash}")
     private String ROOM_LIST_HASH_KEY;
+
+    private final OkHttpClient client = new OkHttpClient();
 
     @Override
     public List<DouyuDto> getAll() {
@@ -58,27 +64,20 @@ public class DouyuServiceImpl implements DouyuService {
     @Override
     public String getPlayUrl(String rid) {
         String res = null;
+        Request request = new Request.Builder()
+                .url("http://localhost:3000/douyu/" + rid)
+                .build();
         try {
-            Process proc = Runtime.getRuntime().exec("node C:\\Users\\Jesse\\桌面\\直播项目\\zhibo_spider\\src\\douyu.js " + rid);
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            Response response = client.newCall(request).execute();
+            assert response.body() != null;
+            String body = response.body().string();
 
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                stringBuilder.append(line);
+            JSONObject jsonObject = JSONUtil.parseObj(body);
+            int err = jsonObject.getInt("err");
+            if (err == 0) {
+                res = jsonObject.getStr("data");
             }
-            JSONObject object = JSONUtil.parseObj(stringBuilder.toString());
-
-            if (object.getInt("err") == 0) {
-                res = object.getStr("data");
-            }
-//            else {
-            //房间未开播或不存在，从redis中删除
-//                stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY, rid);
-//            }
-            in.close();
-            proc.waitFor();
-        } catch (Exception e) {
+        }catch (Exception e){
             e.printStackTrace();
         }
         return res;
