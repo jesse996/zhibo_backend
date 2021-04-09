@@ -38,6 +38,8 @@ services:
       context: ../zhibo_spider/
     networks:
       - zhibo-network
+    depends_on:
+      - redis
     ports:
     - "3000:3000"
 
