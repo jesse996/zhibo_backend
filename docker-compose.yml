@@ -11,6 +11,8 @@ services:
     networks:
       - zhibo-network
     restart: always
+    environment:
+      - "SPRING_PROFILES_ACTIVE=prod"
 
   redis:
     image: "redis:alpine"
