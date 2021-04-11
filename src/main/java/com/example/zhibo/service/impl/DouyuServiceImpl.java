@@ -65,7 +65,7 @@ public class DouyuServiceImpl implements DouyuService {
     public String getPlayUrl(String rid) {
         String res = null;
         Request request = new Request.Builder()
-                .url("http://localhost:3000/douyu/" + rid)
+                .url("http://nest:3000/douyu/" + rid)
                 .build();
         try {
             Response response = client.newCall(request).execute();
