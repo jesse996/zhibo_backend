@@ -36,4 +36,13 @@ public class DouyuController {
         pageInfo.setSize(data.size());
         return CommonResult.success(pageInfo);
     }
+
+    @DeleteMapping("/{id}")
+    public CommonResult deleteRid(@PathVariable("id")String rid){
+        if (douyuService.deleteRid(rid)==1){
+            return CommonResult.success();
+        }else {
+            return CommonResult.failed();
+        }
+    }
 }

@@ -107,4 +107,9 @@ public class DouyuServiceImpl implements DouyuService {
     public Long getCount() {
         return stringRedisTemplate.opsForZSet().zCard(ROOM_LIST_SET_KEY);
     }
+
+    @Override
+    public Long deleteRid(String rid) {
+        return stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY,rid);
+    }
 }

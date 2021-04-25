@@ -16,4 +16,6 @@ public interface DouyuService {
     List<DouyuDto> getAllByPage(Integer page, Integer size);
 
     Long getCount();
+
+    Long deleteRid(String rid);
 }
