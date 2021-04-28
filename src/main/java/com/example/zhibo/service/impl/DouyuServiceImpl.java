@@ -17,6 +17,7 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -36,8 +37,12 @@ public class DouyuServiceImpl implements DouyuService {
     @Value("${spring.redis.key.douyu.room-hash}")
     private String ROOM_LIST_HASH_KEY;
 
+    @Value("${my.nest.host}")
+    private String NEST_HOST;
+
     private final OkHttpClient client = new OkHttpClient();
 
+    //一次获取所有，暂时不用
     @Override
     public List<DouyuDto> getAll() {
         ZSetOperations<String, String> ops = stringRedisTemplate.opsForZSet();
@@ -49,13 +54,16 @@ public class DouyuServiceImpl implements DouyuService {
             DouyuDto douyuDto = new DouyuDto();
             String rid = next.getValue();
             assert rid != null;
-            Object o = stringRedisTemplate.opsForHash().get(ROOM_LIST_HASH_KEY, rid);
-            JSONObject jsonObject = JSONUtil.parseObj(o);
+            Set<String> keys = stringRedisTemplate.keys(ROOM_LIST_HASH_KEY + "::" + rid + "::*");
+            assert keys != null && !keys.isEmpty();
+            String key = keys.toArray(new String[0])[0];
             douyuDto.setScore(next.getScore());
             douyuDto.setRid(rid);
-            douyuDto.setTitle(jsonObject.getStr("title"));
-            douyuDto.setName(jsonObject.getStr("username"));
-            douyuDto.setCoverImg(jsonObject.getStr("coverImg"));
+            douyuDto.setTitle((String) stringRedisTemplate.opsForHash().get(key, "title"));
+            douyuDto.setCoverImg((String) stringRedisTemplate.opsForHash().get(key, "coverImg"));
+            String[] split = key.split("::");
+            String name = split[split.length - 1];
+            douyuDto.setName(name);
             res.add(douyuDto);
         }
         return res;
@@ -65,7 +73,7 @@ public class DouyuServiceImpl implements DouyuService {
     public String getPlayUrl(String rid) {
         String res = null;
         Request request = new Request.Builder()
-                .url("http://nest:3000/douyu/" + rid)
+                .url("http://" + NEST_HOST + ":3000/douyu/" + rid)
                 .build();
         try {
             Response response = client.newCall(request).execute();
@@ -77,7 +85,7 @@ public class DouyuServiceImpl implements DouyuService {
             if (err == 0) {
                 res = jsonObject.getStr("data");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return res;
@@ -87,17 +95,21 @@ public class DouyuServiceImpl implements DouyuService {
     public List<DouyuDto> getAllByPage(Integer page, Integer size) {
         long start = (page - 1) * (long) size;
         long end = start + size - 1;
-        Set<String> set = stringRedisTemplate.opsForZSet().reverseRange(ROOM_LIST_SET_KEY, start, end);
+        Set<String> set = stringRedisTemplate.opsForZSet().range(ROOM_LIST_SET_KEY, start, end);
         if (set == null) return null;
         List<DouyuDto> res = new ArrayList<>();
         for (String rid : set) {
-            Object o = stringRedisTemplate.opsForHash().get(ROOM_LIST_HASH_KEY, rid);
+            Set<String> keys = stringRedisTemplate.keys(ROOM_LIST_HASH_KEY + "::" + rid + "::*");
+            assert keys != null && !keys.isEmpty();
+            String key = keys.toArray(new String[0])[0];
+            List<Object> list = stringRedisTemplate.opsForHash().multiGet(key, Arrays.asList(new String[]{"title", "coverImg"}));
             DouyuDto douyuDto = new DouyuDto();
-            JSONObject jsonObject = JSONUtil.parseObj(o);
             douyuDto.setRid(rid);
-            douyuDto.setTitle(jsonObject.getStr("title"));
-            douyuDto.setName(jsonObject.getStr("username"));
-            douyuDto.setCoverImg(jsonObject.getStr("coverImg"));
+            douyuDto.setTitle((String) list.get(0));
+            douyuDto.setCoverImg((String) list.get(1));
+            String[] split = key.split("::");
+            String name = split[split.length - 1];
+            douyuDto.setName(name);
             res.add(douyuDto);
         }
         return res;
@@ -110,6 +122,6 @@ public class DouyuServiceImpl implements DouyuService {
 
     @Override
     public Long deleteRid(String rid) {
-        return stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY,rid);
+        return stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY, rid);
     }
 }

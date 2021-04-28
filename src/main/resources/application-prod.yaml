@@ -6,3 +6,7 @@ spring:
 
   redis:
       host: redis # Redis服务器地址
+
+my:
+  nest:
+    host: nest
