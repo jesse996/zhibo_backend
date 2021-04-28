@@ -124,4 +124,23 @@ public class DouyuServiceImpl implements DouyuService {
     public Long deleteRid(String rid) {
         return stringRedisTemplate.opsForZSet().remove(ROOM_LIST_SET_KEY, rid);
     }
+
+    @Override
+    public List<DouyuDto> findByName(String name) {
+        Set<String> keys = stringRedisTemplate.keys(ROOM_LIST_HASH_KEY + "*" + name + "*");
+        List<DouyuDto> res = new ArrayList<>();
+        for (String key : keys) {
+            List<Object> list = stringRedisTemplate.opsForHash().multiGet(key, Arrays.asList(new String[]{"title", "coverImg"}));
+            DouyuDto douyuDto = new DouyuDto();
+            douyuDto.setTitle((String) list.get(0));
+            douyuDto.setCoverImg((String) list.get(1));
+            String[] split = key.split("::");
+            String realName = split[split.length - 1];
+            String rid = split[split.length - 2];
+            douyuDto.setRid(rid);
+            douyuDto.setName(realName);
+            res.add(douyuDto);
+        }
+        return res;
+    }
 }

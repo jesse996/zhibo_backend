@@ -38,11 +38,16 @@ public class DouyuController {
     }
 
     @DeleteMapping("/{id}")
-    public CommonResult deleteRid(@PathVariable("id")String rid){
-        if (douyuService.deleteRid(rid)==1){
+    public CommonResult deleteRid(@PathVariable("id") String rid) {
+        if (douyuService.deleteRid(rid) == 1) {
             return CommonResult.success();
-        }else {
+        } else {
             return CommonResult.failed();
         }
+    }
+
+    @GetMapping("/search/{name}")
+    public CommonResult searchByName(@PathVariable("name") String name) {
+        return CommonResult.success(douyuService.findByName(name));
     }
 }

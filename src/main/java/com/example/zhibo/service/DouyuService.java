@@ -18,4 +18,6 @@ public interface DouyuService {
     Long getCount();
 
     Long deleteRid(String rid);
+
+    List<DouyuDto> findByName(String name);
 }
