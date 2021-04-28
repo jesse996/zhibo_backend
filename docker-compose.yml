@@ -7,9 +7,10 @@ services:
       - "8080:8080"
     depends_on:
       - redis
-#      - db
     networks:
       - zhibo-network
+    volumes:
+      - maven_m2:/root/.m2
     restart: always
     environment:
       - "SPRING_PROFILES_ACTIVE=prod"
@@ -48,3 +49,6 @@ services:
 #在最顶层定义时会自动创建这个网络
 networks:
   zhibo-network:
+
+volumes:
+  maven_m2:
