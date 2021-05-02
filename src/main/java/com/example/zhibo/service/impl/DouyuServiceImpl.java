@@ -7,6 +7,7 @@ import com.example.zhibo.service.DouyuService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.core.*;
@@ -40,7 +41,9 @@ public class DouyuServiceImpl implements DouyuService {
     @Value("${my.nest.host}")
     private String NEST_HOST;
 
-    private final OkHttpClient client = new OkHttpClient();
+//    private final OkHttpClient client = new OkHttpClient();
+    @Autowired
+    OkHttpClient client;
 
     //一次获取所有，暂时不用
     @Override
