@@ -1,6 +1,7 @@
 package com.example.zhibo.controller;
 
 import com.example.zhibo.common.CommonResult;
+import com.example.zhibo.dto.HuyaUrl;
 import com.example.zhibo.service.HuyaService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class HuyaController {
 
     @GetMapping("/url/{id}")
     public CommonResult getUrl(@PathVariable("id") String id) {
-        String playUrl = huyaService.getPlayUrl(id);
-        return playUrl == null ? CommonResult.failed() : CommonResult.success(playUrl);
+        HuyaUrl huyaUrl = huyaService.getPlayUrl(id);
+        return huyaUrl == null ? CommonResult.failed() : CommonResult.success(huyaUrl);
     }
 }
