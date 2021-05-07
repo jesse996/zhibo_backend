@@ -67,7 +67,7 @@ public class HuyaServiceImpl implements HuyaService {
             if (response.body() == null) throw new RuntimeException("body为空");
             String body = response.body().string();
             ArrayList<String> list = ReUtil.findAll("liveLineUrl = \"([\\s\\S]*?)\";", body, 1, new ArrayList<>());
-            if (list.isEmpty()) throw new RuntimeException("未开播或房间不存在");
+            if (list.isEmpty()) throw new RuntimeException(rid+" 未开播或房间不存在");
             String liveLineUrl = list.get(0);
             liveLineUrl = Base64.decodeStr(liveLineUrl);
             String url = "";
