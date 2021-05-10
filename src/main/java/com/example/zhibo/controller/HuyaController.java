@@ -2,7 +2,7 @@ package com.example.zhibo.controller;
 
 import com.example.zhibo.common.CommonResult;
 import com.example.zhibo.common.MyPageInfo;
-import com.example.zhibo.dto.HuyaUrl;
+import com.example.zhibo.dto.ResponseCommonUrl;
 import com.example.zhibo.service.HuyaService;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +26,7 @@ public class HuyaController {
 
     @GetMapping("/url/{id}")
     public CommonResult getUrl(@PathVariable("id") String id) {
-        HuyaUrl huyaUrl = huyaService.getPlayUrl(id);
-        return huyaUrl == null ? CommonResult.failed() : CommonResult.success(huyaUrl);
+        ResponseCommonUrl responseCommonUrl = huyaService.getPlayUrl(id);
+        return responseCommonUrl == null ? CommonResult.failed() : CommonResult.success(responseCommonUrl);
     }
 }

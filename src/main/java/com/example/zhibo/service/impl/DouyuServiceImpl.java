@@ -2,7 +2,7 @@ package com.example.zhibo.service.impl;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.example.zhibo.dto.CommonDto;
+import com.example.zhibo.dto.ResponseCommonDto;
 import com.example.zhibo.service.DouyuService;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -42,14 +42,14 @@ public class DouyuServiceImpl implements DouyuService {
 
     //一次获取所有，暂时不用
     @Override
-    public List<CommonDto> getAll() {
+    public List<ResponseCommonDto> getAll() {
         ZSetOperations<String, String> ops = stringRedisTemplate.opsForZSet();
         var scan = ops.scan(ROOM_LIST_SET_KEY, ScanOptions.scanOptions().count(200).build());
-        List<CommonDto> res = new ArrayList<>();
+        List<ResponseCommonDto> res = new ArrayList<>();
 
         while (scan.hasNext()) {
             ZSetOperations.TypedTuple<String> next = scan.next();
-            CommonDto douyuDto = new CommonDto();
+            ResponseCommonDto douyuDto = new ResponseCommonDto();
             String rid = next.getValue();
             assert rid != null;
             Set<String> keys = stringRedisTemplate.keys(ROOM_LIST_HASH_KEY + "::" + rid + "::*");
@@ -89,18 +89,18 @@ public class DouyuServiceImpl implements DouyuService {
     }
 
     @Override
-    public List<CommonDto> getAllByPage(Integer page, Integer size) {
+    public List<ResponseCommonDto> getAllByPage(Integer page, Integer size) {
         long start = (page - 1) * (long) size;
         long end = start + size - 1;
         Set<String> set = stringRedisTemplate.opsForZSet().range(ROOM_LIST_SET_KEY, start, end);
         if (set == null) return null;
-        List<CommonDto> res = new ArrayList<>();
+        List<ResponseCommonDto> res = new ArrayList<>();
         for (String rid : set) {
             Set<String> keys = stringRedisTemplate.keys(ROOM_LIST_HASH_KEY + "::" + rid + "::*");
             assert keys != null && !keys.isEmpty();
             String key = keys.toArray(new String[0])[0];
             List<Object> list = stringRedisTemplate.opsForHash().multiGet(key, Arrays.asList(new String[]{"title", "coverImg"}));
-            CommonDto douyuDto = new CommonDto();
+            ResponseCommonDto douyuDto = new ResponseCommonDto();
             douyuDto.setRid(rid);
             douyuDto.setTitle((String) list.get(0));
             douyuDto.setCoverImg((String) list.get(1));
@@ -123,12 +123,12 @@ public class DouyuServiceImpl implements DouyuService {
     }
 
     @Override
-    public List<CommonDto> findByName(String name) {
+    public List<ResponseCommonDto> findByName(String name) {
         Set<String> keys = stringRedisTemplate.keys(ROOM_LIST_HASH_KEY + "*" + name + "*");
-        List<CommonDto> res = new ArrayList<>();
+        List<ResponseCommonDto> res = new ArrayList<>();
         for (String key : keys) {
             List<Object> list = stringRedisTemplate.opsForHash().multiGet(key, Arrays.asList(new String[]{"title", "coverImg"}));
-            CommonDto douyuDto = new CommonDto();
+            ResponseCommonDto douyuDto = new ResponseCommonDto();
             douyuDto.setTitle((String) list.get(0));
             douyuDto.setCoverImg((String) list.get(1));
             String[] split = key.split("::");

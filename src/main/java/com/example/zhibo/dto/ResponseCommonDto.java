@@ -15,7 +15,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommonDto {
+public class ResponseCommonDto {
     private String name;
     private String title;
     private String rid;

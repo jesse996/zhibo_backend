@@ -7,7 +7,7 @@ import lombok.Data;
  * 虎牙房间直播流地址
  */
 @Data
-public class HuyaUrl {
+public class ResponseCommonUrl {
     boolean live;
     String url;
 }

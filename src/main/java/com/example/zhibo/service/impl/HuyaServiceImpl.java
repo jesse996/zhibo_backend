@@ -8,9 +8,9 @@ import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.example.zhibo.dto.CommonDto;
+import com.example.zhibo.dto.ResponseCommonDto;
 import com.example.zhibo.dto.HuyaOfficialDto;
-import com.example.zhibo.dto.HuyaUrl;
+import com.example.zhibo.dto.ResponseCommonUrl;
 import com.example.zhibo.service.HuyaService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -56,7 +56,7 @@ public class HuyaServiceImpl implements HuyaService {
     }
 
     @Override
-    public HuyaUrl getPlayUrl(String rid) {
+    public ResponseCommonUrl getPlayUrl(String rid) {
         Request request = new Request.Builder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 " +
@@ -72,20 +72,20 @@ public class HuyaServiceImpl implements HuyaService {
             String liveLineUrl = list.get(0);
             liveLineUrl = Base64.decodeStr(liveLineUrl);
             String url = "";
-            HuyaUrl huyaUrl = new HuyaUrl();
+            ResponseCommonUrl responseCommonUrl = new ResponseCommonUrl();
             if (!StrUtil.isBlank(liveLineUrl)) {
                 if (StrUtil.contains(liveLineUrl, "replay")) {
                     //重播
                     url = liveLineUrl;
-                    huyaUrl.setLive(false);
+                    responseCommonUrl.setLive(false);
 
                 } else {
                     //直播
-                    huyaUrl.setLive(true);
+                    responseCommonUrl.setLive(true);
                     url = live(liveLineUrl);
                 }
-                huyaUrl.setUrl("https:" + url);
-                return huyaUrl;
+                responseCommonUrl.setUrl("https:" + url);
+                return responseCommonUrl;
             }
         } catch (Exception e) {
             log.error(e.getLocalizedMessage());
@@ -94,14 +94,14 @@ public class HuyaServiceImpl implements HuyaService {
     }
 
     @Override
-    public List<CommonDto> getAllByPage(Integer page, Integer size) {
+    public List<ResponseCommonDto> getAllByPage(Integer page, Integer size) {
         Request request = new Request.Builder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 " +
                         "(KHTML, like Gecko) Chrome/75.0.3770.100 Mobile Safari/537.36 ")
                 .url(StrUtil.format("https://m.huya.com/cache.php?m=Live&do=ajaxGetProfileLive&page={}&pageSize={}}", page, size))
                 .build();
-        List<CommonDto> res = new ArrayList<>();
+        List<ResponseCommonDto> res = new ArrayList<>();
         try {
             Response response = client.newCall(request).execute();
             assert response.body() != null;
@@ -110,13 +110,13 @@ public class HuyaServiceImpl implements HuyaService {
             JSONArray gameList = jsonObject.getJSONArray("gameList");
             for (Object o : gameList) {
                 HuyaOfficialDto huyaDto = JSONUtil.parseObj(o).toBean(HuyaOfficialDto.class);
-                CommonDto commonDto = CommonDto.builder()
+                ResponseCommonDto responseCommonDto = ResponseCommonDto.builder()
                         .coverImg(huyaDto.getScreenshot())
                         .rid(huyaDto.getProfileRoom())
                         .name(huyaDto.getNick())
                         .title(huyaDto.getIntroduction())
                         .build();
-                res.add(commonDto);
+                res.add(responseCommonDto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,7 +125,7 @@ public class HuyaServiceImpl implements HuyaService {
     }
 
     @Override
-    public List<CommonDto> findByName(String name) {
+    public List<ResponseCommonDto> findByName(String name) {
         return null;
     }
 }
