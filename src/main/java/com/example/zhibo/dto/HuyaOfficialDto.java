@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class HuyaDto implements Serializable {
+public class HuyaOfficialDto implements Serializable {
 
     private static final long serialVersionUID = -8071308067862041916L;
 

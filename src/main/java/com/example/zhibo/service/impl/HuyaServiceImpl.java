@@ -8,7 +8,8 @@ import cn.hutool.crypto.digest.MD5;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.example.zhibo.dto.HuyaDto;
+import com.example.zhibo.dto.CommonDto;
+import com.example.zhibo.dto.HuyaOfficialDto;
 import com.example.zhibo.dto.HuyaUrl;
 import com.example.zhibo.service.HuyaService;
 import lombok.extern.slf4j.Slf4j;
@@ -93,14 +94,14 @@ public class HuyaServiceImpl implements HuyaService {
     }
 
     @Override
-    public List<HuyaDto> getAllByPage(Integer page, Integer size) {
+    public List<CommonDto> getAllByPage(Integer page, Integer size) {
         Request request = new Request.Builder()
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 " +
                         "(KHTML, like Gecko) Chrome/75.0.3770.100 Mobile Safari/537.36 ")
                 .url(StrUtil.format("https://m.huya.com/cache.php?m=Live&do=ajaxGetProfileLive&page={}&pageSize={}}", page, size))
                 .build();
-        List<HuyaDto> res = new ArrayList<>();
+        List<CommonDto> res = new ArrayList<>();
         try {
             Response response = client.newCall(request).execute();
             assert response.body() != null;
@@ -108,10 +109,15 @@ public class HuyaServiceImpl implements HuyaService {
             JSONObject jsonObject = JSONUtil.parseObj(body);
             JSONArray gameList = jsonObject.getJSONArray("gameList");
             for (Object o : gameList) {
-                HuyaDto huyaDto = JSONUtil.parseObj(o).toBean(HuyaDto.class);
-                res.add(huyaDto);
+                HuyaOfficialDto huyaDto = JSONUtil.parseObj(o).toBean(HuyaOfficialDto.class);
+                CommonDto commonDto = CommonDto.builder()
+                        .coverImg(huyaDto.getScreenshot())
+                        .rid(huyaDto.getProfileRoom())
+                        .name(huyaDto.getNick())
+                        .title(huyaDto.getIntroduction())
+                        .build();
+                res.add(commonDto);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -119,7 +125,7 @@ public class HuyaServiceImpl implements HuyaService {
     }
 
     @Override
-    public List<HuyaDto> findByName(String name) {
+    public List<CommonDto> findByName(String name) {
         return null;
     }
 }

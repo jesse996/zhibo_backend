@@ -1,6 +1,7 @@
 package com.example.zhibo.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,19 +14,10 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DouyuDto implements Serializable {
-    private static final long serialVersionUID = 3948607265589451817L;
-
+@Builder
+public class CommonDto {
     private String name;
-
     private String title;
-
-    //room id
     private String rid;
-
-    private Double score;
-
     private String coverImg;
-
-    private String playUrl;
 }

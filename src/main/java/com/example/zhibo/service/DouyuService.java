@@ -1,7 +1,6 @@
 package com.example.zhibo.service;
 
-import com.example.zhibo.dto.DouyuDto;
-
+import com.example.zhibo.dto.CommonDto;
 import java.util.List;
 
 /**
@@ -9,15 +8,15 @@ import java.util.List;
  * @Date: 2021/4/2 10:34 上午
  */
 public interface DouyuService {
-    List<DouyuDto> getAll();
+    List<CommonDto> getAll();
 
     String getPlayUrl(String rid);
 
-    List<DouyuDto> getAllByPage(Integer page, Integer size);
+    List<CommonDto> getAllByPage(Integer page, Integer size);
 
     Long getCount();
 
     Long deleteRid(String rid);
 
-    List<DouyuDto> findByName(String name);
+    List<CommonDto> findByName(String name);
 }
