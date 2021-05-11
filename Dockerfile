@@ -4,6 +4,6 @@ WORKDIR /app
 COPY pom.xml /app/pom.xml
 RUN mvn -f /app/pom.xml clean package -Dmaven.test.skip=true
 
-FROM openjdk:11-jre-slim
-COPY --from=build /app/target/*.jar /app/app.jar
+#FROM openjdk:11-jre-slim
+#COPY --from=build /app/target/*.jar /app/app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
