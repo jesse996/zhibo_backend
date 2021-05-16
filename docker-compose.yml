@@ -19,28 +19,16 @@ services:
     image: "redis:alpine"
     ports:
     - "6379:6379"
+    restart: always
     networks:
       - zhibo-network
-
-#  db:
-#    image: "mysql:latest"
-#    ports:
-#    - "3306:3306"
-#    expose:
-#      - 3306
-#    depends_on:
-#      - redis
-#    networks:
-#      - zhibo-network
-#    environment:
-#      MYSQL_ROOT_PASSWORD: 123
-#      MYSQL_DATABASE: zhibo
 
   nest:
     build:
       context: ../zhibo_spider/
     networks:
       - zhibo-network
+    restart: always
     depends_on:
       - redis
     ports:
